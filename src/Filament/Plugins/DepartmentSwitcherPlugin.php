@@ -21,7 +21,7 @@ class DepartmentSwitcherPlugin implements Plugin
         $panel->renderHook(
             'panels::global-search.before',
             fn () =>
-                UserPermissionHelper::hasPermission('dpb-departments.department-switcher.view')
+                UserPermissionHelper::hasPermission('dpb-departments.department_switcher.view')
                     ? Livewire::mount(DepartmentSwitcherComponent::class)
                     : null
         );

@@ -16,9 +16,9 @@ class DepartmentService
 
     public static function getAvailableDepartments(): Collection
     {
-        if (UserPermissionHelper::hasPermission('dpb-departments.department.read-all')) {
+        if (UserPermissionHelper::hasPermission('dpb-departments.department.read_all')) {
             return self::getAllDepartments();
-        } elseif (UserPermissionHelper::hasPermission('dpb-departments.department.read-assigned')) {
+        } elseif (UserPermissionHelper::hasPermission('dpb-departments.department.read_assigned')) {
             return self::getAssignedDepartments();
         } else {
             return new Collection([]);
