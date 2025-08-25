@@ -23,7 +23,7 @@
         <x-filament-actions::modals />
     </div>
     @php
-    use Dpb\DpbEmployeeManager\Services\DepartmentService;    
+    use Dpb\Departments\Services\DepartmentService;    
     @endphp
     <div
         id="department-scrollbar"

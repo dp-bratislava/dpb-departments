@@ -2,6 +2,7 @@
 
 namespace Dpb\Departments\Services;
 
+use Dpb\DatahubSync\Models\EmployeeContract;
 use Dpb\Departments\Models\Department;
 use Dpb\DpbUtils\Helpers\UserPermissionHelper;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,8 +27,7 @@ class DepartmentService
 
     public static function getActiveDepartment(): ?Department
     {
-        return self::getActiveDepartmentFromSession()
-            ?? self::getDefaultAvailableDepartment();
+        return self::getActiveDepartmentFromSession();
     }
 
     public static function setActiveDepartment(
@@ -36,16 +36,45 @@ class DepartmentService
         self::storeActiveDepartmentToSession($department);
     }
 
+    public static function getEmployeeContractsOfActiveDepartment(): Collection
+    {
+        return EmployeeContract::whereHas(
+            'department',
+            function ($query) {
+                $query->where('is_active', 1)
+                    ->where('id', self::getActiveDepartment()?->id ?? 0);
+            }
+        )
+            ->whereHas(
+                'circuit',
+                function ($query) {
+                    $query->whereIn('code', array_merge(config('dpb-em.allowed_circuit_codes')));
+                }
+            )
+            ->get();
+    }
+
     private static function getDefaultAvailableDepartment(): ?Department
     {
         return self::getAvailableDepartments()
             ->first();
     }
 
+    public static function getActiveDepartmentId(): int
+    {
+        return Session::get(static::SESSION_KEY_ACTIVE_DEPARTMENT) ?? 0;
+    }
+
     private static function getActiveDepartmentFromSession(): ?Department
     {
         if (empty($departmentId = Session::get(static::SESSION_KEY_ACTIVE_DEPARTMENT))) {
-            return null;
+            $defaultDepartment = self::getDefaultAvailableDepartment();
+            if (!empty($defaultDepartment = self::getDefaultAvailableDepartment())) {
+                self::setActiveDepartment($defaultDepartment);
+                return $defaultDepartment;
+            } else {
+                return null;
+            }
         }
         if (empty($department = Department::find($departmentId))) {
             Session::forget(static::SESSION_KEY_ACTIVE_DEPARTMENT);
