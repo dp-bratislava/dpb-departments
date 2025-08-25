@@ -2,8 +2,8 @@
 
 return [
     'web' => [
-        'department-switcher.view',
-        'department.read-assigned',
-        'department.read-all',
+        'department_switcher.view',
+        'department.read_assigned',
+        'department.read_all',
     ],
 ];
