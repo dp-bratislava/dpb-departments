@@ -1,0 +1,89 @@
+<?php
+
+namespace Dpb\Departments\Services;
+
+use Dpb\Departments\Models\Department;
+use Dpb\DpbUtils\Helpers\UserPermissionHelper;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+
+class DepartmentService
+{
+    public const SESSION_KEY_ACTIVE_DEPARTMENT = 'dpb_departments_active_department_id';
+
+    public static function getAvailableDepartments(): Collection
+    {
+        if (UserPermissionHelper::hasPermission('dpb-departments.department.read-all')) {
+            return self::getAllDepartments();
+        } elseif (UserPermissionHelper::hasPermission('dpb-departments.department.read-assigned')) {
+            return self::getAssignedDepartments();
+        } else {
+            return new Collection([]);
+        }
+    }
+
+    public static function getActiveDepartment(): ?Department
+    {
+        return self::getActiveDepartmentFromSession()
+            ?? self::getDefaultAvailableDepartment();
+    }
+
+    public static function setActiveDepartment(
+        int|Department $department
+    ): void {
+        self::storeActiveDepartmentToSession($department);
+    }
+
+    private static function getDefaultAvailableDepartment(): ?Department
+    {
+        return self::getAvailableDepartments()
+            ->first();
+    }
+
+    private static function getActiveDepartmentFromSession(): ?Department
+    {
+        if (empty($departmentId = Session::get(static::SESSION_KEY_ACTIVE_DEPARTMENT))) {
+            return null;
+        }
+        if (empty($department = Department::find($departmentId))) {
+            Session::forget(static::SESSION_KEY_ACTIVE_DEPARTMENT);
+            return null;
+        }
+        return $department;
+    }
+
+    private static function storeActiveDepartmentToSession(
+        int|Department $department
+    ): void {
+        Session::put(
+            static::SESSION_KEY_ACTIVE_DEPARTMENT,
+            ($department instanceof Department)
+                ? $department->id :
+                $department
+        );
+    }
+
+    private static function getAllDepartments(): Collection
+    {
+        $codes = config('dpb-em.allowed_circuit_codes');
+        $results = collect(DB::select("
+            SELECT CO.datahub_department_id, COUNT(0) AS `count`
+            FROM datahub_employee_contracts CO
+            LEFT JOIN datahub_employee_circuits CI ON CO.circuit_id = CI.id
+            WHERE CO.is_active = 1
+            AND CI.code IN (".implode(',', array_fill(0, count($codes), '?')).")
+            GROUP BY CO.datahub_department_id
+            ORDER BY `count`
+        ", $codes));
+        return Department::whereIn('id', $results->pluck('datahub_department_id'))
+            ->get();
+    }
+
+    private static function getAssignedDepartments(): Collection
+    {
+        return Department::whereIn('id', Auth::user()->properties['available-departments'] ?? [])
+            ->get();
+    }
+}
