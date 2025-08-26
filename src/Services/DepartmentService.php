@@ -54,6 +54,19 @@ class DepartmentService
             ->get();
     }
 
+
+
+    public static function getMinCatalogingQuota(
+        ?string $departmentCode = null
+    ): int {
+        $config = config('dpb-departments.min_cataloging_quota', []);
+        $departmentCode = $departmentCode ?? self::getActiveDepartment()?->code;
+        return array_key_exists($departmentCode, $config)
+            ? $config[$departmentCode]
+            : $config['default']
+                ?? throw new \RuntimeException('No default min_cataloging_quota configured in dpb-departments config file.');
+    }
+
     private static function getDefaultAvailableDepartment(): ?Department
     {
         return self::getAvailableDepartments()
