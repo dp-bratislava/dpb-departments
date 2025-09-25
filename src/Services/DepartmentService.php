@@ -57,7 +57,7 @@ class DepartmentService
 
 
     public static function getMinCatalogingQuota(
-        ?string $departmentCode = null
+        ?int $departmentCode = null
     ): int {
         $config = config('dpb-departments.min_cataloging_quota', []);
         $departmentCode = $departmentCode ?? self::getActiveDepartment()?->code;
@@ -127,5 +127,33 @@ class DepartmentService
     {
         return Department::whereIn('id', Auth::user()->properties['available-departments'] ?? [])
             ->get();
+    }
+
+    public static function findEmployeeContractsOfDemandedDepartments(
+        array $departmentIds
+    ): Collection {
+        return EmployeeContract::with(['employee', 'circuit', 'department'])
+            ->whereHas(
+                'department',
+                function ($query) use ($departmentIds) {
+                    $query->where('is_active', 1)
+                        ->whereIn('id', $departmentIds);
+                }
+            )
+            ->whereHas(
+                'circuit',
+                function ($query) {
+                    $query->whereIn('code', array_merge(config('dpb-em.allowed_circuit_codes')));
+                }
+            )
+            ->get();
+    }
+
+    public static function findAllAvailableEmployeeContracts(): Collection
+    {
+        $departments = self::getAvailableDepartments()
+            ->pluck('id')
+            ->toArray();
+        return self::findEmployeeContractsOfDemandedDepartments($departments);
     }
 }
