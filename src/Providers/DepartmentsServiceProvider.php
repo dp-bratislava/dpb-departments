@@ -18,6 +18,7 @@ class DepartmentsServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'dpb-departments');
         $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'dpb-departments');
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
         $this->publishes([
             __DIR__ . '/../../config/dpb-departments.php' => config_path('dpb-departments.php'),
         ], 'dpb-departments-config');
