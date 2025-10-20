@@ -2,6 +2,7 @@
 
 namespace Dpb\Departments\Providers;
 
+use Dpb\Departments\Filament\Plugins\DepartmentSwitcherPlugin;
 use Dpb\Departments\Livewire\DepartmentSwitcherComponent;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -23,5 +24,14 @@ class DepartmentsServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/dpb-departments.php' => config_path('dpb-departments.php'),
         ], 'dpb-departments-config');
         Livewire::component('dpb.department-switcher', DepartmentSwitcherComponent::class);
+        $this->registerFilamentPlugin();
+    }
+
+    private function registerFilamentPlugin(): void
+    {
+        config()->set('admin-panel.plugins', array_merge(
+            [DepartmentSwitcherPlugin::class],
+            config('admin-panel.plugins', [])
+        ));
     }
 }
