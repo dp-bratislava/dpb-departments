@@ -3,9 +3,7 @@
 namespace Dpb\Departments\Providers;
 
 use Dpb\Departments\Filament\Plugins\DepartmentSwitcherPlugin;
-use Dpb\Departments\Livewire\DepartmentSwitcherComponent;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 
 class DepartmentsServiceProvider extends ServiceProvider
 {
