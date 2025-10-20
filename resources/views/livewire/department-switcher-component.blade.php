@@ -22,9 +22,6 @@
         @endif
         <x-filament-actions::modals />
     </div>
-    @php
-    use Dpb\Departments\Services\DepartmentService;    
-    @endphp
     <div
         id="department-scrollbar"
         :class="open 

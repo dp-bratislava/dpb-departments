@@ -23,7 +23,6 @@ class DepartmentsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../config/dpb-departments.php' => config_path('dpb-departments.php'),
         ], 'dpb-departments-config');
-        Livewire::component('dpb.department-switcher', DepartmentSwitcherComponent::class);
         $this->registerFilamentPlugin();
     }
 
