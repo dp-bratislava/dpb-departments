@@ -3,6 +3,7 @@
 namespace Dpb\Departments\Livewire;
 
 use Dpb\Departments\Services\DepartmentService;
+use Dpb\MasterPermissionGuard\Concerns\HasComponentGuard;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -15,6 +16,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
 {
     use InteractsWithActions;
     use InteractsWithForms;
+    use HasComponentGuard;
 
     private const MINIMUM_DEPARTMENTS_TO_SHOW_MODAL = 7;
 
