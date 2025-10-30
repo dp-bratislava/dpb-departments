@@ -39,7 +39,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
         int $departmentId
     ): void {
         $this->activeDepartmentId = $departmentId;
-        DepartmentService::setActiveDepartment($departmentId);
+        DepartmentService::setActiveDepartment(department: $departmentId);
         $this->dispatch(
             event: static::EVENT_DEPARTMENT_CHANGED,
             departmentId: $departmentId
@@ -49,7 +49,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     public function switchDepartmentAndCloseModal(
         int $departmentId
     ): void {
-        $this->switchDepartment($departmentId);
+        $this->switchDepartment(departmentId: $departmentId);
         $this->closeActionModal();
     }
 
@@ -60,18 +60,17 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
 
     public function render()
     {
-        return view('dpb-departments::livewire.department-switcher-component');
+        return view(view: 'dpb-departments::livewire.department-switcher-component');
     }
 
     public function openFullDepartmentSwitcherAction(): Action
     {
-        return Action::make('openFullDepartmentSwitcherAction')
-            ->label(false)
-            ->icon('heroicon-o-bars-3')
-            ->visible(fn () => count($this->availableDepartments()) >= self::MINIMUM_DEPARTMENTS_TO_SHOW_MODAL)
-            ->modalContent(view('dpb-departments::livewire.department-switcher-modal-action', [
+        return Action::make(name: 'openFullDepartmentSwitcherAction')
+            ->label(label: false)
+            ->icon(icon: 'heroicon-o-bars-3')
+            ->visible(condition: fn (): bool => count(value: $this->availableDepartments()) >= self::MINIMUM_DEPARTMENTS_TO_SHOW_MODAL)
+            ->modalContent(content: view(view: 'dpb-departments::livewire.department-switcher-modal-action', data: [
                 'activeDepartmentId' => $this->activeDepartmentId
             ]));
     }
-
 }

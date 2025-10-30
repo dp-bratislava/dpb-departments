@@ -5,6 +5,7 @@ namespace Dpb\Departments\Services;
 use Dpb\DatahubSync\Models\EmployeeContract;
 use Dpb\Departments\Models\Department;
 use Dpb\DpbUtils\Helpers\UserPermissionHelper;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,12 +17,12 @@ class DepartmentService
 
     public static function getAvailableDepartments(): Collection
     {
-        if (UserPermissionHelper::hasPermission('dpb-departments.department.read_all')) {
+        if (UserPermissionHelper::hasPermission(permission: 'dpb-departments.department.read_all')) {
             return self::getAllDepartments();
-        } elseif (UserPermissionHelper::hasPermission('dpb-departments.department.read_assigned')) {
+        } elseif (UserPermissionHelper::hasPermission(permission: 'dpb-departments.department.read_assigned')) {
             return self::getAssignedDepartments();
         } else {
-            return new Collection([]);
+            return new Collection(items: []);
         }
     }
 
@@ -33,22 +34,22 @@ class DepartmentService
     public static function setActiveDepartment(
         int|Department $department
     ): void {
-        self::storeActiveDepartmentToSession($department);
+        self::storeActiveDepartmentToSession(department: $department);
     }
 
     public static function getEmployeeContractsOfActiveDepartment(): Collection
     {
         return EmployeeContract::whereHas(
-            'department',
-            function ($query) {
-                $query->where('is_active', 1)
-                    ->where('id', self::getActiveDepartment()?->id ?? 0);
+            relation: 'department',
+            callback: function (Builder $query): void {
+                $query->where(column: 'is_active', operator: 1)
+                    ->where(column: 'id', operator: self::getActiveDepartment()?->id ?? 0);
             }
         )
             ->whereHas(
-                'circuit',
-                function ($query) {
-                    $query->whereIn('code', array_merge(config('dpb-em.allowed_circuit_codes')));
+                relation: 'circuit',
+                callback: function (Builder $query): void {
+                    $query->whereIn(column: 'code', values: array_merge(config(key: 'dpb-em.allowed_circuit_codes')));
                 }
             )
             ->get();
@@ -59,12 +60,12 @@ class DepartmentService
     public static function getMinCatalogingQuota(
         ?int $departmentCode = null
     ): int {
-        $config = config('dpb-departments.min_cataloging_quota', []);
+        $config = config(key: 'dpb-departments.min_cataloging_quota', default: []);
         $departmentCode = $departmentCode ?? self::getActiveDepartment()?->code;
-        return array_key_exists($departmentCode, $config)
+        return array_key_exists(key: $departmentCode, array: $config)
             ? $config[$departmentCode]
             : $config['default']
-                ?? throw new \RuntimeException('No default min_cataloging_quota configured in dpb-departments config file.');
+                ?? throw new \RuntimeException(message: 'No default min_cataloging_quota configured in dpb-departments config file.');
     }
 
     private static function getDefaultAvailableDepartment(): ?Department
@@ -75,22 +76,22 @@ class DepartmentService
 
     public static function getActiveDepartmentId(): int
     {
-        return Session::get(static::SESSION_KEY_ACTIVE_DEPARTMENT) ?? 0;
+        return Session::get(key: static::SESSION_KEY_ACTIVE_DEPARTMENT) ?? 0;
     }
 
     private static function getActiveDepartmentFromSession(): ?Department
     {
-        if (empty($departmentId = Session::get(static::SESSION_KEY_ACTIVE_DEPARTMENT))) {
+        if (empty($departmentId = Session::get(key: static::SESSION_KEY_ACTIVE_DEPARTMENT))) {
             $defaultDepartment = self::getDefaultAvailableDepartment();
             if (!empty($defaultDepartment = self::getDefaultAvailableDepartment())) {
-                self::setActiveDepartment($defaultDepartment);
+                self::setActiveDepartment(department: $defaultDepartment);
                 return $defaultDepartment;
             } else {
                 return null;
             }
         }
-        if (empty($department = Department::find($departmentId))) {
-            Session::forget(static::SESSION_KEY_ACTIVE_DEPARTMENT);
+        if (empty($department = Department::find(id: $departmentId))) {
+            Session::forget(keys: static::SESSION_KEY_ACTIVE_DEPARTMENT);
             return null;
         }
         return $department;
@@ -100,8 +101,8 @@ class DepartmentService
         int|Department $department
     ): void {
         Session::put(
-            static::SESSION_KEY_ACTIVE_DEPARTMENT,
-            ($department instanceof Department)
+            key: static::SESSION_KEY_ACTIVE_DEPARTMENT,
+            value: ($department instanceof Department)
                 ? $department->id :
                 $department
         );
@@ -109,17 +110,17 @@ class DepartmentService
 
     private static function getAllDepartments(): Collection
     {
-        $codes = config('dpb-em.allowed_circuit_codes');
-        $results = collect(DB::select("
+        $codes = config(key: 'dpb-em.allowed_circuit_codes');
+        $results = collect(value: DB::select(query: "
             SELECT CO.datahub_department_id, COUNT(0) AS `count`
             FROM datahub_employee_contracts CO
             LEFT JOIN datahub_employee_circuits CI ON CO.circuit_id = CI.id
             WHERE CO.is_active = 1
-            AND CI.code IN (".implode(',', array_fill(0, count($codes), '?')).")
+            AND CI.code IN (".implode(separator: ',', array: array_fill(start_index: 0, count: count(value: $codes), value: '?')).")
             GROUP BY CO.datahub_department_id
             ORDER BY `count`
-        ", $codes));
-        return Department::whereIn('id', $results->pluck('datahub_department_id'))
+        ", bindings: $codes));
+        return Department::whereIn('id', $results->pluck(value: 'datahub_department_id'))
             ->get();
     }
 
@@ -132,18 +133,18 @@ class DepartmentService
     public static function findEmployeeContractsOfDemandedDepartments(
         array $departmentIds
     ): Collection {
-        return EmployeeContract::with(['employee', 'circuit', 'department'])
+        return EmployeeContract::with(relations: ['employee', 'circuit', 'department'])
             ->whereHas(
-                'department',
-                function ($query) use ($departmentIds) {
-                    $query->where('is_active', 1)
-                        ->whereIn('id', $departmentIds);
+                relation: 'department',
+                callback: function (Builder $query) use ($departmentIds): void {
+                    $query->where(column: 'is_active', operator: 1)
+                        ->whereIn(column: 'id', values: $departmentIds);
                 }
             )
             ->whereHas(
-                'circuit',
-                function ($query) {
-                    $query->whereIn('code', array_merge(config('dpb-em.allowed_circuit_codes')));
+                relation: 'circuit',
+                callback: function (Builder $query): void {
+                    $query->whereIn(column: 'code', values: array_merge(arrays: config(key: 'dpb-em.allowed_circuit_codes')));
                 }
             )
             ->get();
