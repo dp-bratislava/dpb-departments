@@ -48,9 +48,9 @@ class DepartmentsServiceProvider extends ServiceProvider
 
     private function registerFilamentPlugin(): void
     {
-        config()->set(key: 'admin-panel.plugins', value: array_merge(
+        config()->set(key: 'admin-panel.plugins', value: array_unique(array_merge(
             [DepartmentSwitcherPlugin::class],
             config(key: 'admin-panel.plugins', default: [])
-        ));
+        )));
     }
 }
