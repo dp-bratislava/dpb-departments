@@ -3,16 +3,17 @@
 namespace Dpb\Departments\Services;
 
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class DepartmentMetaService
 {
     public function findAllDepartmentMetaData(
         int $departmentId
     ): array {
-        return DB::table('dpb_departments_mm_departmentmeta')
-            ->where('department_id', '=', $departmentId)
+        return DB::table(table: 'dpb_departments_mm_departmentmeta')
+            ->where(column: 'department_id', operator: '=', value: $departmentId)
             ->get()
-            ->mapWithKeys(fn ($item) => [$item->param_name => $item->param_value])
+            ->mapWithKeys(callback: fn (stdClass $item): array => [$item->param_name => $item->param_value])
             ->toArray();
     }
 
@@ -21,10 +22,10 @@ class DepartmentMetaService
         int $departmentId,
         mixed $defaultValue = null
     ): mixed {
-        return DB::table('dpb_departments_mm_departmentmeta')
-            ->where('department_id', '=', $departmentId)
-            ->where('param_name', '=', $paramName)
-            ->value('param_value') ?? $defaultValue;
+        return DB::table(table: 'dpb_departments_mm_departmentmeta')
+            ->where(column: 'department_id', operator: '=', value: $departmentId)
+            ->where(column: 'param_name', operator: '=', value: $paramName)
+            ->value(column: 'param_value') ?? $defaultValue;
     }
 
     public function setMeta(
@@ -32,13 +33,13 @@ class DepartmentMetaService
         int $departmentId,
         mixed $paramValue
     ): void {
-        DB::table('dpb_departments_mm_departmentmeta')
+        DB::table(table: 'dpb_departments_mm_departmentmeta')
             ->updateOrInsert(
-                [
+                attributes: [
                     'department_id' => $departmentId,
                     'param_name' => $paramName,
                 ],
-                [
+                values: [
                     'param_value' => $paramValue,
                 ]
             );
