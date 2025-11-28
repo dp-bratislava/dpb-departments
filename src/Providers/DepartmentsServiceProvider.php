@@ -4,6 +4,7 @@ namespace Dpb\Departments\Providers;
 
 use Dpb\Departments\Filament\Plugins\DepartmentSwitcherPlugin;
 use Dpb\Departments\Livewire\DepartmentSwitcherComponent;
+use Dpb\Departments\Services\DepartmentService;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
@@ -23,6 +24,7 @@ class DepartmentsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->singleton(abstract: DepartmentService::class);
         $this->loadViewsFrom(
             path: __DIR__.'/../../resources/views',
             namespace: 'dpb-departments'

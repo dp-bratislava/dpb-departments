@@ -2,6 +2,7 @@
 
 namespace Dpb\Departments\Livewire;
 
+use Dpb\Departments\Concerns\HasDepartmentService;
 use Dpb\Departments\Services\DepartmentService;
 use Dpb\MasterPermissionGuard\Concerns\HasComponentGuard;
 use Filament\Actions\Action;
@@ -17,6 +18,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     use InteractsWithActions;
     use InteractsWithForms;
     use HasComponentGuard;
+    use HasDepartmentService;
 
     private const MINIMUM_DEPARTMENTS_TO_SHOW_MODAL = 7;
 
@@ -27,19 +29,21 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     #[Computed()]
     public function availableDepartments(): array
     {
-        return DepartmentService::getAvailableDepartments()->toArray();
+        return $this->getDepartmentService()
+            ->getAvailableDepartments()
+            ->toArray();
     }
 
     public function mount(
     ): void {
-        $this->activeDepartmentId = DepartmentService::getActiveDepartment()?->id ?? '';
+        $this->activeDepartmentId = $this->getDepartmentService()->getActiveDepartment()?->id ?? '';
     }
 
     public function switchDepartment(
         int $departmentId
     ): void {
         $this->activeDepartmentId = $departmentId;
-        DepartmentService::setActiveDepartment(department: $departmentId);
+        $this->getDepartmentService()->setActiveDepartment(department: $departmentId);
         $this->dispatch(
             event: static::EVENT_DEPARTMENT_CHANGED,
             departmentId: $departmentId
@@ -51,11 +55,6 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     ): void {
         $this->switchDepartment(departmentId: $departmentId);
         $this->closeActionModal();
-    }
-
-    public static function getActiveDepartmentId(): int
-    {
-        return DepartmentService::getActiveDepartment()?->id ?? 0;
     }
 
     public function render()

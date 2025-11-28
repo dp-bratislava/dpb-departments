@@ -11,7 +11,6 @@ trait HasDepartmentService
     public function bootHasDepartmentService(
         DepartmentService $departmentService
     ): void {
-        logger()->debug(message: 'HasDepartmentService booted');
         $this->departmentService = $departmentService;
     }
 
