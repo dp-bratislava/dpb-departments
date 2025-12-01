@@ -33,9 +33,20 @@ class DepartmentService
 
     public function getActiveDepartment(): Department
     {
+        if ($this->activeDepartment) {
+            return $this->activeDepartment;
+        }
+
+        $availableDepartments = $this->getAvailableDepartments();
+        $activeDepartmentIdFromSession = $this->configurationService->getActiveDepartmentId() ?? 0;
+
+        if ($availableDepartments->contains(key: 'id', operator: '=', value: $activeDepartmentIdFromSession)) {
+            $this->activeDepartment = $availableDepartments
+                ->firstWhere(key: 'id', operator: '=', value: $activeDepartmentIdFromSession);
+        } else {
+            $this->activeDepartment = $availableDepartments->first();
+        }
         return $this->activeDepartment
-            ??= Department::find(id: $this->configurationService->getActiveDepartmentId() ?? 0)
-            ?? $this->getAvailableDepartments()->first()
             ?? throw new \RuntimeException(message: 'No available departments found.');
     }
 
