@@ -16,18 +16,14 @@ class DepartmentService
 
     public static function getInstance(): DepartmentService
     {
-        return App::make(abstract: DepartmentService::class);
+        return App::make(
+            abstract: DepartmentService::class
+        );
     }
 
     public function __construct(
         private readonly ConfigurationService $configurationService
     ) {
-        logger()->info(message: 'DepartmentService instantiated');
-    }
-
-    public function __destruct()
-    {
-        logger()->info(message: 'DepartmentService destructed');
     }
 
     public function getAvailableDepartments(): Collection
@@ -54,7 +50,7 @@ class DepartmentService
         $this->activeDepartment = $department instanceof Department
             ? $department
             : $this->availableDepartments
-                ?->firstWhere('id', $department)
+                ?->firstWhere(key: 'id', operator: '=', value: $department)
             ?? Department::find(id: $department);
     }
 
@@ -66,19 +62,5 @@ class DepartmentService
                 values: $this->configurationService->getAvailableDepartmentsIds()
             )
             ->get();
-    }
-
-    /**
-     * @deprecated Use instance method instead
-     */
-    public static function getMinCatalogingQuota(
-        ?int $departmentCode = null
-    ): int {
-        $config = config(key: 'dpb-departments.min_cataloging_quota', default: []);
-        $departmentCode = $departmentCode ?? App::make(abstract: DepartmentService::class)->getActiveDepartment()->code;
-        return array_key_exists(key: $departmentCode, array: $config)
-            ? $config[$departmentCode]
-            : $config['default']
-                ?? throw new \RuntimeException(message: 'No default min_cataloging_quota configured in dpb-departments config file.');
     }
 }
