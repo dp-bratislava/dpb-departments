@@ -4,8 +4,10 @@ namespace Dpb\Departments\Services;
 
 use Dpb\Departments\Models\Department;
 use Dpb\Departments\Services\ConfigurationService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Gate;
 
 class DepartmentService
 {
@@ -68,9 +70,12 @@ class DepartmentService
     private function loadAvailableDepartments(): Collection
     {
         return Department::query()
-            ->whereIn(
-                column: 'id',
-                values: $this->configurationService->getAvailableDepartmentsIds()
+            ->when(
+                value: !Gate::allows(ability: 'dpb-departments.department.read_all'),
+                callback: fn (Builder $query): Builder => $query->whereIn(
+                    column: 'id',
+                    values: $this->configurationService->getAvailableDepartmentsIds()
+                )
             )
             ->get();
     }

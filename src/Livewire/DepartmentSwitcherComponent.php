@@ -3,7 +3,6 @@
 namespace Dpb\Departments\Livewire;
 
 use Dpb\Departments\Concerns\HasDepartmentService;
-use Dpb\Departments\Services\DepartmentService;
 use Dpb\MasterPermissionGuard\Concerns\HasComponentGuard;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -12,6 +11,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use RuntimeException;
 
 class DepartmentSwitcherComponent extends Component implements HasActions, HasForms
 {
@@ -29,21 +29,31 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     #[Computed()]
     public function availableDepartments(): array
     {
-        return $this->getDepartmentService()
+        return $this
+            ->getDepartmentService()
             ->getAvailableDepartments()
             ->toArray();
     }
 
     public function mount(
     ): void {
-        $this->activeDepartmentId = $this->getDepartmentService()->getActiveDepartment()?->id ?? '';
+        try {
+            $this->activeDepartmentId = $this
+                ->getDepartmentService()
+                ->getActiveDepartment()?->id ?? '';
+        } catch (RuntimeException $ex) {
+
+        }
     }
 
     public function switchDepartment(
         int $departmentId
     ): void {
         $this->activeDepartmentId = $departmentId;
-        $this->getDepartmentService()->setActiveDepartment(department: $departmentId);
+        $this->getDepartmentService()
+            ->setActiveDepartment(
+                department: $departmentId
+            );
         $this->dispatch(
             event: static::EVENT_DEPARTMENT_CHANGED,
             departmentId: $departmentId
