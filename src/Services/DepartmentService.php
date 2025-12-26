@@ -55,6 +55,9 @@ class DepartmentService
     public function setActiveDepartment(
         int|Department $department
     ): void {
+        if($this->getAvailableDepartments()->contains($department instanceof Department ? $department : Department::find(id: $department)) === false) {
+            throw new \RuntimeException(message: 'Department not available.');
+        }
         $this->configurationService->setActiveDepartmentId(
             departmentId: ($department instanceof Department)
                 ? $department->id
