@@ -106,7 +106,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     {
         return Action::make(name: 'openFullDepartmentSwitcherAction')
             ->label(label: $this->getActiveDepartmentCode())
-            ->icon(icon: 'heroicon-o-chevron-down')
+            ->icon(icon: count($this->availableDepartments()) > 1 ? 'heroicon-o-chevron-down' : '')
             ->visible(condition: fn (): bool => $this->showModal())
             ->modalContent(content: view(view: 'dpb-departments::livewire.department-switcher-modal-action', data: [
                 'activeDepartmentId' => $this->activeDepartmentId
