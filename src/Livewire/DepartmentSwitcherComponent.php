@@ -20,8 +20,6 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     use HasComponentGuard;
     use HasDepartmentService;
 
-    private const MINIMUM_DEPARTMENTS_TO_SHOW_MODAL = 7;
-
     public const EVENT_DEPARTMENT_CHANGED = 'dpb_departments_selected_department_changed_event';
 
     public string $activeDepartmentId = '';
@@ -33,6 +31,38 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
             ->getDepartmentService()
             ->getAvailableDepartments()
             ->toArray();
+    }
+
+    #[Computed()]
+    public function getMinimumDepartmentsToShowModal(): int
+    {
+        return config(key: 'dpb-departments.minimum_departments_to_show_modal', default: 7);
+    }
+
+    #[Computed()]
+    public function showScrollbar(): bool
+    {
+        return count(value: $this->availableDepartments()) < $this->getMinimumDepartmentsToShowModal();
+    }
+
+    #[Computed()]
+    public function showModal(): bool
+    {
+        return count(value: $this->availableDepartments()) >= $this->getMinimumDepartmentsToShowModal();
+    }
+
+    #[Computed()]
+    public function getActiveDepartmentCode(): string
+    {
+        try {
+            $activeDepartment = $this
+                ->getDepartmentService()
+                ->getActiveDepartment();
+            
+            return $activeDepartment?->code ?? '';
+        } catch (RuntimeException $ex) {
+            return '';
+        }
     }
 
     public function mount(
@@ -75,9 +105,9 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     public function openFullDepartmentSwitcherAction(): Action
     {
         return Action::make(name: 'openFullDepartmentSwitcherAction')
-            ->label(label: false)
-            ->icon(icon: 'heroicon-o-bars-3')
-            ->visible(condition: fn (): bool => count(value: $this->availableDepartments()) >= self::MINIMUM_DEPARTMENTS_TO_SHOW_MODAL)
+            ->label(label: $this->getActiveDepartmentCode())
+            ->icon(icon: 'heroicon-o-chevron-down')
+            ->visible(condition: fn (): bool => $this->showModal())
             ->modalContent(content: view(view: 'dpb-departments::livewire.department-switcher-modal-action', data: [
                 'activeDepartmentId' => $this->activeDepartmentId
             ]));
