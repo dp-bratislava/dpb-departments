@@ -17,7 +17,7 @@
     "require": {
         "php": "^8.2",
         "filament/filament": "^3.2",
-        "dpb/dpb-utils": "dev-staging",
+        "dpb/dpb-utils": "^12.0",
         "dpb/filament-admin-panel": "^12.0",
         "dpb/laravel-user-admin": "^3.0"
     },
