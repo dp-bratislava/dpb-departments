@@ -94,7 +94,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
         int $departmentId
     ): void {
         $this->switchDepartment(departmentId: $departmentId);
-        $this->closeActionModal();
+        $this->unmountAction(canCancelParentActions: false);
     }
 
     public function render()
