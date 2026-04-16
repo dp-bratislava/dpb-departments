@@ -5,6 +5,7 @@ namespace Dpb\Departments\Filament\Plugins;
 use Dpb\Departments\Livewire\DepartmentSwitcherComponent;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Filament\View\PanelsRenderHook;
 use Livewire\Livewire;
 
 class DepartmentSwitcherPlugin implements Plugin
@@ -18,7 +19,7 @@ class DepartmentSwitcherPlugin implements Plugin
         Panel $panel
     ): void {
         $panel->renderHook(
-            name: 'panels::global-search.before',
+            name: PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
             hook: fn (): string => Livewire::mount(
                 name: DepartmentSwitcherComponent::class
             )
