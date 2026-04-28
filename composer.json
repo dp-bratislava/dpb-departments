@@ -1,6 +1,5 @@
 {
     "name": "dpb/dpb-departments",
-    "version": "dev-feature/upgrade-to-filament-v5",
     "type": "library",
     "license": "proprietary",
     "autoload": {
