@@ -4,6 +4,7 @@ namespace Dpb\Departments\Models;
 
 use Dpb\DatahubSync\Models\Department as DatahubDepartment;
 use Dpb\DpbUtils\Concerns\HasModelMetaAttributes;
+use Illuminate\Database\Eloquent\Builder;
 
 class Department extends DatahubDepartment
 {
@@ -25,4 +26,28 @@ class Department extends DatahubDepartment
             metaValue: $percent
         );
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(
+            DepartmentGroup::class,
+            'dpb_departments_department_group',
+            'department_id',
+            'group_id',
+        );
+    }  
+    
+    public function scopeByGroupUri(Builder $query, string $uri): Builder
+    {
+        return $query->whereHas('groups', function($q) use ($uri) {
+            $q->byGroupUri($uri);
+        });
+    }
+
+    public function scopeByGroupUris(Builder $query, array $uris): Builder
+    {
+        return $query->whereHas('groups', function($q) use ($uris) {
+            $q->byGroupUris($uris);
+        });
+    }    
 }
