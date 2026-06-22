@@ -13,7 +13,7 @@
         })()
     "
     @mouseenter="open = true"
-    @mouseleave="open = false; $nextTick(() => window.scrollToActiveDepartment());"
+    @mouseleave="open = false"
     class="flex"
 >
     <!-- Modal Button (Hamburger Menu) -->
@@ -38,7 +38,6 @@
         >
             @forelse ($this->availableDepartments as $department)
                 <x-filament::button
-                    id="{{ $department['id'] == $activeDepartmentId ? 'active-department' : '' }}"
                     title="{{ $department['title'] }}"
                     class="mx-1 my-2 inline-block"
                     color="{{ $department['id'] == $activeDepartmentId ? 'primary' : 'gray' }}"
@@ -50,18 +49,5 @@
                 {{ __('dpb-wtff::department-switcher-component.messages.no_deapartments_available') }}
             @endforelse
         </div>
-        <script>
-            function scrollToActiveDepartment() {
-                const container = document.getElementById('department-scrollbar');
-                const active = document.getElementById('active-department');
-                if (active && container) {
-                    const containerRect = container.getBoundingClientRect();
-                    const activeRect = active.getBoundingClientRect();
-                    const offset = (activeRect.left + activeRect.right) / 2 - (containerRect.left + containerRect.right) / 2;
-                    container.scrollLeft += offset;
-                }
-            }
-            document.addEventListener('livewire:navigated', () => { scrollToActiveDepartment(); });
-        </script>
     @endif
 </div>
