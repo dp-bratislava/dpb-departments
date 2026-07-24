@@ -3,7 +3,6 @@
 namespace Dpb\Departments\Services;
 
 use Dpb\Departments\Models\Department;
-use Dpb\Departments\Services\ConfigurationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
@@ -13,8 +12,9 @@ class DepartmentService
 {
     public const SESSION_KEY_ACTIVE_DEPARTMENT = 'dpb_departments_active_department_id';
 
-    private Collection|null $availableDepartments = null;
-    private Department|null $activeDepartment = null;
+    private ?Collection $availableDepartments = null;
+
+    private ?Department $activeDepartment = null;
 
     public static function getInstance(): DepartmentService
     {
@@ -25,8 +25,7 @@ class DepartmentService
 
     public function __construct(
         private readonly ConfigurationService $configurationService
-    ) {
-    }
+    ) {}
 
     public function getAvailableDepartments(): Collection
     {
@@ -48,6 +47,7 @@ class DepartmentService
         } else {
             $this->activeDepartment = $availableDepartments->first();
         }
+
         return $this->activeDepartment
             ?? throw new \RuntimeException(message: 'No available departments found.');
     }
@@ -55,7 +55,7 @@ class DepartmentService
     public function setActiveDepartment(
         int|Department $department
     ): void {
-        if($this->getAvailableDepartments()->contains($department instanceof Department ? $department : Department::find(id: $department)) === false) {
+        if ($this->getAvailableDepartments()->contains($department instanceof Department ? $department : Department::find(id: $department)) === false) {
             throw new \RuntimeException(message: 'Department not available.');
         }
         $this->configurationService->setActiveDepartmentId(
@@ -74,7 +74,7 @@ class DepartmentService
     {
         return Department::query()
             ->when(
-                value: !Gate::allows(ability: 'dpb-departments.department.read_all'),
+                value: ! Gate::allows(ability: 'dpb-departments.department.read_all'),
                 callback: fn (Builder $query): Builder => $query->whereIn(
                     column: 'id',
                     values: $this->configurationService->getAvailableDepartmentsIds()

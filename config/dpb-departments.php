@@ -5,7 +5,7 @@ return [
 
     /**
      * Minimum number of departments to show modal picker instead of scrollbar
-     * 
+     *
      * When the number of available departments exceeds this value,
      * the scrollbar will be hidden and only the modal picker (hamburger button) will be shown.
      * This prevents the scrollbar from becoming too large with many departments.

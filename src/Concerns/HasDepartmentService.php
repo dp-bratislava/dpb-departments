@@ -2,7 +2,6 @@
 
 namespace Dpb\Departments\Concerns;
 
-use Dpb\DatahubSync\Models\Department;
 use Dpb\Departments\Services\DepartmentService;
 use Illuminate\Support\Facades\App;
 

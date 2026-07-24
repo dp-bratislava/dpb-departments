@@ -34,7 +34,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->primary(['department_id', 'group_id']);
-        });        
+        });
     }
 
     /**

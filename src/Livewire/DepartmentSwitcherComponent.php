@@ -15,10 +15,10 @@ use RuntimeException;
 
 class DepartmentSwitcherComponent extends Component implements HasActions, HasForms
 {
-    use InteractsWithActions;
-    use InteractsWithForms;
     use HasComponentGuard;
     use HasDepartmentService;
+    use InteractsWithActions;
+    use InteractsWithForms;
 
     public const EVENT_DEPARTMENT_CHANGED = 'dpb_departments_selected_department_changed_event';
 
@@ -58,7 +58,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
             $activeDepartment = $this
                 ->getDepartmentService()
                 ->getActiveDepartment();
-            
+
             return $activeDepartment?->code ?? '';
         } catch (RuntimeException $ex) {
             return '';
@@ -109,7 +109,7 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
             ->icon(icon: count($this->availableDepartments()) > 1 ? 'heroicon-o-chevron-down' : '')
             ->visible(condition: fn (): bool => $this->showModal())
             ->modalContent(content: view(view: 'dpb-departments::livewire.department-switcher-modal-action', data: [
-                'activeDepartmentId' => $this->activeDepartmentId
+                'activeDepartmentId' => $this->activeDepartmentId,
             ]));
     }
 }

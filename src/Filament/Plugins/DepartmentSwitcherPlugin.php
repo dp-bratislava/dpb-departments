@@ -28,7 +28,5 @@ class DepartmentSwitcherPlugin implements Plugin
 
     public function boot(
         Panel $panel
-    ): void {
-
-    }
+    ): void {}
 }

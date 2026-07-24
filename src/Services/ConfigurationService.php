@@ -9,8 +9,9 @@ class ConfigurationService
 {
     public const SESSION_KEY_ACTIVE_DEPARTMENT = 'dpb_departments_active_department_id';
 
-    private array|null $allowedEmployeeCircuitsIdsCache = null;
-    private User|null $authenticatedUserCache = null;
+    private ?array $allowedEmployeeCircuitsIdsCache = null;
+
+    private ?User $authenticatedUserCache = null;
 
     public function getAllowedEmployeeCircuitsIds(): array
     {
@@ -34,13 +35,13 @@ class ConfigurationService
         }
     }
 
-    public function getActiveDepartmentId(): int|null
+    public function getActiveDepartmentId(): ?int
     {
         return session(key: static::SESSION_KEY_ACTIVE_DEPARTMENT);
     }
 
     public function setActiveDepartmentId(
-        int|null $departmentId
+        ?int $departmentId
     ): void {
         session()->put(key: static::SESSION_KEY_ACTIVE_DEPARTMENT, value: $departmentId);
     }

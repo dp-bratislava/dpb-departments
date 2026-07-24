@@ -35,19 +35,19 @@ class Department extends DatahubDepartment
             'department_id',
             'group_id',
         );
-    }  
-    
+    }
+
     public function scopeByGroupUri(Builder $query, string $uri): Builder
     {
-        return $query->whereHas('groups', function($q) use ($uri) {
+        return $query->whereHas('groups', function ($q) use ($uri) {
             $q->byGroupUri($uri);
         });
     }
 
     public function scopeByGroupUris(Builder $query, array $uris): Builder
     {
-        return $query->whereHas('groups', function($q) use ($uris) {
+        return $query->whereHas('groups', function ($q) use ($uris) {
             $q->byGroupUris($uris);
         });
-    }    
+    }
 }

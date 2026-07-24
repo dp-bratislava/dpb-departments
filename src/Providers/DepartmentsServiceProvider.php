@@ -13,11 +13,11 @@ class DepartmentsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            path: __DIR__ . '/../../config/dpb-departments.php',
+            path: __DIR__.'/../../config/dpb-departments.php',
             key: 'dpb-departments'
         );
         $this->mergeConfigFrom(
-            path: __DIR__ . '/../../config/permissions.php',
+            path: __DIR__.'/../../config/permissions.php',
             key: 'dpb.permissions.dpb-departments'
         );
     }
@@ -30,14 +30,14 @@ class DepartmentsServiceProvider extends ServiceProvider
             namespace: 'dpb-departments'
         );
         $this->loadTranslationsFrom(
-            path: __DIR__ . '/../../resources/lang',
+            path: __DIR__.'/../../resources/lang',
             namespace: 'dpb-departments'
         );
         $this->loadMigrationsFrom(
-            paths: __DIR__ . '/../../database/migrations'
+            paths: __DIR__.'/../../database/migrations'
         );
         $this->publishes(
-            paths: [__DIR__ . '/../../config/dpb-departments.php' => config_path(path: 'dpb-departments.php')],
+            paths: [__DIR__.'/../../config/dpb-departments.php' => config_path(path: 'dpb-departments.php')],
             groups: 'dpb-departments-config'
         );
         Livewire::component(

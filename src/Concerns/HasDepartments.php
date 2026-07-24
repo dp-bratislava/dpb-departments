@@ -28,6 +28,7 @@ trait HasDepartments
                     ? $department->id
                     : $department
             );
+
         return $this;
     }
 
@@ -40,6 +41,7 @@ trait HasDepartments
                     ? $department->id
                     : $department
             );
+
         return $this;
     }
 
@@ -48,6 +50,7 @@ trait HasDepartments
     ): static {
         $this->departments()
             ->sync(ids: $departments);
+
         return $this;
     }
 
