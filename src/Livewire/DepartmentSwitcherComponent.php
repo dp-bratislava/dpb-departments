@@ -24,8 +24,8 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
 
     public string $activeDepartmentId = '';
 
-    #[Computed()]
-    public function availableDepartments(): array
+    // Fetched ONLY when the modal content renders
+    public function getAvailableDepartmentsData(): array
     {
         return $this
             ->getDepartmentService()
@@ -40,15 +40,10 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
     }
 
     #[Computed()]
-    public function showScrollbar(): bool
-    {
-        return count(value: $this->availableDepartments()) < $this->getMinimumDepartmentsToShowModal();
-    }
-
-    #[Computed()]
     public function showModal(): bool
     {
-        return count(value: $this->availableDepartments()) >= $this->getMinimumDepartmentsToShowModal();
+        // Count departments directly via service to avoid loading full department models/arrays on mount
+        return $this->getDepartmentService()->getAvailableDepartments()->count() >= $this->getMinimumDepartmentsToShowModal();
     }
 
     #[Computed()]
@@ -65,8 +60,8 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
         }
     }
 
-    public function mount(
-    ): void {
+    public function mount(): void 
+    {
         try {
             $this->activeDepartmentId = $this
                 ->getDepartmentService()
@@ -76,40 +71,39 @@ class DepartmentSwitcherComponent extends Component implements HasActions, HasFo
         }
     }
 
-    public function switchDepartment(
-        int $departmentId
-    ): void {
+    public function switchDepartment(int $departmentId): void 
+    {
         $this->activeDepartmentId = $departmentId;
         $this->getDepartmentService()
-            ->setActiveDepartment(
-                department: $departmentId
-            );
+            ->setActiveDepartment(department: $departmentId);
+
         $this->dispatch(
             event: static::EVENT_DEPARTMENT_CHANGED,
             departmentId: $departmentId
         );
     }
 
-    public function switchDepartmentAndCloseModal(
-        int $departmentId
-    ): void {
+    public function switchDepartmentAndCloseModal(int $departmentId): void 
+    {
         $this->switchDepartment(departmentId: $departmentId);
         $this->unmountAction(canCancelParentActions: false);
     }
 
     public function render()
     {
-        return view(view: 'dpb-departments::livewire.department-switcher-component');
+        return view('dpb-departments::livewire.department-switcher-component');
     }
 
     public function openFullDepartmentSwitcherAction(): Action
     {
-        return Action::make(name: 'openFullDepartmentSwitcherAction')
-            ->label(label: $this->getActiveDepartmentCode())
-            ->icon(icon: count($this->availableDepartments()) > 1 ? 'heroicon-o-chevron-down' : '')
-            ->visible(condition: fn (): bool => $this->showModal())
-            ->modalContent(content: view(view: 'dpb-departments::livewire.department-switcher-modal-action', data: [
+        return Action::make('openFullDepartmentSwitcherAction')
+            ->label($this->getActiveDepartmentCode())
+            ->icon($this->getDepartmentService()->getAvailableDepartments()->count() > 1 ? 'heroicon-o-chevron-down' : '')
+            ->visible(fn (): bool => $this->showModal)
+            ->modalSubmitAction(false)
+            ->modalContent(fn () => view('dpb-departments::livewire.department-switcher-modal-action', [
                 'activeDepartmentId' => $this->activeDepartmentId,
+                'availableDepartments' => $this->getAvailableDepartmentsData(),
             ]));
     }
 }

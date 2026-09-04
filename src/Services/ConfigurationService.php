@@ -35,7 +35,12 @@ class ConfigurationService
         }
     }
 
-    public function getActiveDepartmentId(): ?int
+    public function getDefaultDepartmentId(): int|null
+    {
+        return $this->getAuthenticatedUser()?->properties['default-department'] ?? null;
+    }
+
+    public function getActiveDepartmentId(): int|null
     {
         return session(key: static::SESSION_KEY_ACTIVE_DEPARTMENT);
     }

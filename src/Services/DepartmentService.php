@@ -45,7 +45,15 @@ class DepartmentService
             $this->activeDepartment = $availableDepartments
                 ->firstWhere(key: 'id', operator: '=', value: $activeDepartmentIdFromSession);
         } else {
-            $this->activeDepartment = $availableDepartments->first();
+            // Fall back to default department from config if no session department is set
+            $defaultDepartmentId = $this->configurationService->getDefaultDepartmentId();
+            
+            if ($defaultDepartmentId && $availableDepartments->contains(key: 'id', operator: '=', value: $defaultDepartmentId)) {
+                $this->activeDepartment = $availableDepartments
+                    ->firstWhere(key: 'id', operator: '=', value: $defaultDepartmentId);
+            } else {
+                $this->activeDepartment = $availableDepartments->first();
+            }
         }
 
         return $this->activeDepartment

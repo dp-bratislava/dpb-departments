@@ -1,5 +1,5 @@
 <div class="grid grid-cols-2">
-    @forelse ($this->availableDepartments as $department)
+    @forelse ($availableDepartments as $department)
         <div>
             <x-filament::button
                 title="{{ $department['title'] }}"
